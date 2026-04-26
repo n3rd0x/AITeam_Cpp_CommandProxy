@@ -1,0 +1,22 @@
+{
+	"permissions": {
+		"allow": [
+			"WebSearch",
+			"Bash(**)",
+			"Read(.claude/commands/**)",
+			"Write(.claude/commands/**)",
+			"Edit(.claude/commands//**)",
+			"Read(./**)",
+			"Write(./**)",
+			"Edit(./**)"
+		],
+		"deny": [
+			"Write(../**)",
+			"Edit(../**)",
+			"Read(../**)",
+			"Edit(.env)",
+			"Edit(.env.**)",
+			"Edit(.claude/settings.json)"
+		]
+	}
+}
