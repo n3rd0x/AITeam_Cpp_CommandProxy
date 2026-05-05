@@ -8,12 +8,12 @@ A C++20 console application that reads stdin and suggests matching commands.
 **Build System**: CMake
 **Language**: C++20
 **Target Platform**: GCC
-**Dependencies**: None (pure standard library)
+**Dependencies**: gtest
 
 ## Project Structure
 
 ```
-claude-cpp/
+commandproxy.git/
 ├── src/               # .cpp definition files
 ├── include/           # .h declaration files
 ├── test/              # unit test files
@@ -21,11 +21,11 @@ claude-cpp/
 │   ├── app/           # compiled application output
 │   └── test/          # compiled test output
 ├── CMakeLists.txt     # root build definition
+├── CMakePresets.json  # CMake build presets
 ├── .clang-format      # C++ formatter config
 ├── .cmake-format.yaml # CMake formatter config
-├── .claudeignore      # files hidden from Claude
 ├── CLAUDE.md          # project rules and architecture
-├── memory.md          # current context and decisions
+├── MEMORY.md          # current context and decisions
 ├── TASKS.md           # task backlog
 ├── PLAN.md            # current feature plan
 ├── CHANGELOG.md       # permanent record of what shipped
@@ -33,45 +33,50 @@ claude-cpp/
     ├── settings.json  # Claude permissions
     ├── commands/      # slash command definitions (/start, /stop)
     └── archived/      # completed tasks, plans and memory snapshots
-        └── yyyyMMdd/  # one folder per archived date
+        └── YYYYMMDD/  # one folder per archived date
 ```
 
 ## Build & Run
 
 ```bash
-# Configure
-cmake -S . -B build -G "Unix Makefiles" -DBUILD_TESTS=ON
+# (Windows) Configure with preset (requires MSYS_UCRT64 env var set)
+cmake --preset ucrt64 -DBUILD_TESTS=ON
+
+# (Unix/macOS) Configure with preset
+cmake --preset gcc -DBUILD_TESTS=ON
 
 # Build everything
-cmake --build build --parallel
+cmake --build build/ucrt64 --parallel
 
 # Run app
-./build/app/bin/CommandProxy.exe
+./build/[ucrt64|gcc]/<AppName>.exe
 
 # Run tests
-./build/tests/bin/tests.exe
+./build/[ucrt64|gcc]/tests.exe
 
 # Or via ctest
-ctest --test-dir build
+ctest --test-dir build/[ucrt64|gcc]
 ```
 
 ## Code Style
 
 ### Naming
-| Construct        | Convention  | Example             |
-|------------------|-------------|---------------------|
-| Functions        | camelCase   | parseInput()        |
-| Classes          | PascalCase  | InputParser         |
-| Member variables | camelCase   | delimiter           |
-| Constants        | UPPER_SNAKE | MAX_SUGGESTIONS     |
-| Local variables  | lower_snake | token_list          |
-| Files            | PascalCase  | InputParser.cpp     |
+
+| Construct        | Convention  | Example          | Note                                         |
+|------------------|-------------|------------------|----------------------------------------------|
+| Functions        | camelCase   | parseInput()     |                                              |
+| Classes          | PascalCase  | InputParser      |                                              |
+| Member variables | camelCase   | delimiter        | class fields only                            |
+| Constants        | UPPER_SNAKE | MAX_SUGGESTIONS  |                                              |
+| Local variables  | snake_case  | token_list       | variables declared inside function body only |
+| Local variables  | camelCase   | numInputs        | variables declared inside classes            |
+| Files            | PascalCase  | InputParser.cpp  |                                              |
 
 ### Header Template
-#ifndef cmdprxMYCLASS_H
-#define cmdprxMYCLASS_H
+#ifndef aiteam_cmdprx_MYCLASS_H
+#define aiteam_cmdprx_MYCLASS_H
 
-namespace suggest {
+namespace aiteam {
 
 class MyClass {
 public:
@@ -82,30 +87,45 @@ private:
     std::string value;
 };
 
-} // namespace suggest
+} // namespace aiteam
 
-#endif
+#endif // aiteam_cmdprx_MYCLASS_H
+
+### Source Template
+#include "MyClass.h"
+
+namespace aiteam {
+
+
+std::string MyClass::getValue() const {
+    return "";
+}
+
+
+void MyClass::printValue(std::string_view sv) {
+    std::cout << sv << std::end;
+}
+
+
+}
 
 ### Rules
 - `header guard` in every header, prefix as `cmdprx` and suffix as `_H`
 - `[[nodiscard]]` on every non-void return
 - `std::string_view` for read-only string params
 - No `using namespace` in headers
+- Always two break lines between function implementation in source files
 - One class per header/source pair
 
 ## Code Formatting
 
 ### Tools
 - **clang-format**: C++ code formatting (`.clang-format` in project root)
-- **cmake-format**: CMakeLists.txt formatting (`.cmake-format.yaml` in project root)
 
 ### Usage
 ```bash
 # Format all C++ files
 clang-format -i src/ include/ test/
-
-# Format CMake files
-cmake-format -i CMakeLists.txt
 ```
 
 ## CMake Style
@@ -115,23 +135,23 @@ cmake-format -i CMakeLists.txt
 - 4 space indentation
 - One argument per line when a command has more than 3 arguments
 - Closing parenthesis aligned with the command name
-- Two blank line between top-level blocks
+- Always two blank lines between top-level blocks
 
 Example:
 add_executable(
-    CommandSuggest
+    CommandProxy
     src/main.cpp
     src/app.cpp
 )
 
 
-target_include_directories(CommandSuggest
+target_include_directories(CommandProxy
     PRIVATE
         include
 )
 
 
-target_compile_options(CommandSuggest
+target_compile_options(CommandProxy
     PRIVATE
         -Wall
         -Wextra
@@ -154,4 +174,6 @@ target_compile_options(CommandSuggest
   - Example: feature: add fuzzy match to Suggester
   - Example: fix: handle empty input in InputParser
   - Example: bugfix: fix fuzzy mismatch
-- Never push — commits stay local until human reviews
+  - Example: docs: add fuzzy documentation
+- Never commit automatically — only when told "commit now"
+- Never push, merge, rebase, or switch branches — human only or when told

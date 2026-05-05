@@ -3,9 +3,15 @@
 		"allow": [
 			"WebSearch",
 			"Bash(**)",
-			"Read(.claude/commands/**)",
-			"Write(.claude/commands/**)",
-			"Edit(.claude/commands//**)",
+			"Bash(git status)",
+			"Bash(git diff **)",
+			"Bash(git log **)",
+			"Bash(git add **)",
+			"Bash(git commit **)",
+			"Read(.claude/commands)",
+			"Read(.claude/archives)",
+			"Write(.claude/archives)",
+			"Edit(.claude/archives)",
 			"Read(./**)",
 			"Write(./**)",
 			"Edit(./**)"
@@ -16,7 +22,13 @@
 			"Read(../**)",
 			"Edit(.env)",
 			"Edit(.env.**)",
-			"Edit(.claude/settings.json)"
+			"Edit(.claude/settings.json)",
+			"Edit(.claude/commands/**)",
+			"Bash(git push **)",
+			"Bash(git merge **)",
+			"Bash(git rebase **)",
+			"Bash(git reset **)",
+			"Bash(git checkout **)"
 		]
 	}
 }
